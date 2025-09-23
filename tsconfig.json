@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // JS version browsers can run (ES5 for older support)
+    "module": "ESNext", // modern browsers understand ES modules
+    "lib": ["DOM", "ESNext"], // include DOM types + latest JS features
+    "moduleResolution": "node",
+    "outDir": "./dist", // compiled .js output
+    "rootDir": "./src", // your TypeScript source files
+    "strict": true, // enable strict type checking
+    "esModuleInterop": true, // better interop with commonjs modules
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "inlineSources": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
