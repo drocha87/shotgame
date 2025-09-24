@@ -1,1 +1,2 @@
 lmg_fire01: https://opengameart.org/content/light-machine-gun
+lose sound 2 - 2: https://opengameart.org/content/bad-sound-2

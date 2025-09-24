@@ -78,14 +78,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   width: 100vw;
   height: 100vh;
   background-color: #181818;
+  color: white;
 }
 
 canvas#canvas {
   display: block;
-  border: 1px solid red;
+  border: 1px solid #a1a1a1;
   width: 100%;
   max-width: 1600px;
   aspect-ratio: 16 / 9;
