@@ -7,7 +7,7 @@
     "outDir": "./dist", // compiled .js output
     "rootDir": "./src", // your TypeScript source files
     "strict": true, // enable strict type checking
-    "esModuleInterop": true, // better interop with commonjs modules
+    "esModuleInterop": false, // better interop with commonjs modules
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
