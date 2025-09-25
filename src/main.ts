@@ -34,17 +34,32 @@ function renderGameOver(ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = "#fafafa";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const gameOverStr = `GAME OVER`;
+  const gameOverStr = "GAME OVER";
 
   ctx.fillStyle = "black";
   ctx.font = "24px sans-serif";
   const metrics = ctx.measureText(gameOverStr);
 
-  ctx.fillText(
-    gameOverStr,
-    (canvas.width - metrics.width) / 2,
-    (canvas.height - 24) / 2
-  );
+  let x = (canvas.width - metrics.width) / 2;
+  let y = (canvas.height - 24) / 2;
+  ctx.fillText(gameOverStr, x, y);
+
+  const { good, missed, perfect } = gameState.shots;
+  let accuracy = 0;
+  if (good + perfect > 0) {
+    accuracy = (good + perfect) / (missed + good + perfect);
+  }
+
+  x += 25;
+  y += 35;
+  ctx.font = "14px sans-serif";
+  ctx.fillText(`Total Shots: ${good + perfect + missed}`, x, y);
+
+  y += 25;
+  ctx.fillText(`Accuracy: ${Math.floor(accuracy * 100)}%`, x, y);
+
+  y += 25;
+  ctx.fillText(`Level: ${gameState.level}`, x, y);
 }
 
 function handleMouseMovement(event: MouseEvent) {

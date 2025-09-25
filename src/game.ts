@@ -9,7 +9,7 @@ export const gameState = {
   mousePosition: { x: 0, y: 0 },
   targets: [] as Array<TTarget>,
   paused: true,
-  gameOver: false,
+  level: 1,
   availableShots: 2,
   shots: {
     missed: 0,
@@ -20,6 +20,7 @@ export const gameState = {
   accuracy: 0,
   texts: [] as Array<{ text: TText; duration: number; remove: boolean }>,
   maxDiscRadius: 100,
+  maxTargetDuration: 2,
 };
 
 export type GameState = typeof gameState;
@@ -60,7 +61,22 @@ export function shot(a: Aim, b: TTarget, tolerance: number = 1): ShotAccuracy {
 }
 
 export function renderAim(ctx: CanvasRenderingContext2D) {
+  if (gameState.level < 3) {
+    ctx.strokeStyle = "#a1a1a155";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.moveTo(0, gameState.mousePosition.y);
+    ctx.lineTo(gameState.width, gameState.mousePosition.y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(gameState.mousePosition.x, 0);
+    ctx.lineTo(gameState.mousePosition.x, gameState.height);
+    ctx.stroke();
+  }
   renderCircle(ctx, gameState.mousePosition, 3, "#181818");
+  renderCircle(ctx, gameState.mousePosition, 1.5, "white");
 }
 
 export function renderStats(ctx: CanvasRenderingContext2D) {
@@ -73,12 +89,23 @@ export function renderStats(ctx: CanvasRenderingContext2D) {
   });
 
   const { good, missed, perfect } = gameState.shots;
-  const accuracy = (good + perfect) / (missed + good + perfect);
+  let accuracy = 0;
+  if (good + perfect > 0) {
+    accuracy = (good + perfect) / (missed + good + perfect);
+  }
 
   renderText(ctx, {
     text: `Total Shots: ${good + perfect + missed}`,
     x: 20,
     y: 60,
+    font: "18px sans-serif",
+    color: "black",
+  });
+
+  renderText(ctx, {
+    text: `Level: ${gameState.level}`,
+    x: 20,
+    y: 90,
     font: "18px sans-serif",
     color: "black",
   });
@@ -154,9 +181,17 @@ export function handleMouseClick(_event: MouseEvent) {
         gameState.shots.perfect += 1;
         gameState.availableShots += 1;
 
+        let text = "Perferct shot!";
+        if (gameState.level / gameState.shots.perfect <= 0.25) {
+          gameState.level += 1;
+          gameState.maxDiscRadius *= 0.95;
+          gameState.maxTargetDuration *= 0.95;
+          text = "Level up!";
+        }
+
         gameState.texts.push({
           text: {
-            text: "Perfect shot!",
+            text,
             x: aim.x - 20,
             y: aim.y + 20,
             font: "14px sans-serif",
@@ -174,40 +209,24 @@ export type TTarget = {
   x: number;
   y: number;
   radius: number;
-  velocity: number;
   remove: boolean;
   duration: number; // stay alive in seconds
-  maxDuration: number;
 };
 
 export function spawTarget() {
-  const rand = Math.random();
+  const { width, height, maxDiscRadius: mr } = gameState;
 
-  const padding = 100;
-  const radius = clamp(
-    gameState.maxDiscRadius * rand,
-    gameState.maxDiscRadius / 5,
-    gameState.maxDiscRadius
-  );
-  const x = clamp(
-    gameState.width * rand,
-    radius + padding,
-    gameState.width - radius - padding
-  );
-  const y = clamp(
-    gameState.height * rand,
-    radius + padding,
-    gameState.height - radius - padding
-  );
+  const pad = 100;
+  const r = clamp(mr * Math.random(), mr / 5, mr);
+  const x = clamp(width * Math.random(), r + pad, width - r - pad);
+  const y = clamp(height * Math.random(), r + pad, height - r - pad);
 
   gameState.targets.push({
     x,
     y,
-    radius,
-    velocity: 200 * rand,
+    radius: r,
     remove: false,
-    duration: 2,
-    maxDuration: 2,
+    duration: gameState.maxTargetDuration,
   });
 }
 
@@ -222,7 +241,7 @@ export function renderTargets(
     const lineWidth = target.radius / 10;
     ctx.lineWidth = lineWidth;
     ctx.beginPath();
-    const progress = target.duration / target.maxDuration;
+    const progress = target.duration / gameState.maxTargetDuration;
     ctx.arc(
       target.x,
       target.y,
